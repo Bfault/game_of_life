@@ -1,8 +1,10 @@
 module Matrix
 ( Matrix(..)
 , createMatrix
--- , randomizeMatrix
+, randomizeMatrix
 ) where
+
+import System.Random
 
 data Matrix a = Matrix {
     rows :: Int,
@@ -26,6 +28,8 @@ instance Functor Matrix where
         in
             Matrix rows cols $ map (fmapRow f) data_
 
+instance (Random a) => Random Matrix a where
+
 createMatrix :: Int -> Int -> a -> Matrix a
 createMatrix width height default_ = Matrix {
     rows = width,
@@ -33,4 +37,10 @@ createMatrix width height default_ = Matrix {
     data_ = replicate height (replicate width default_)
 }
 
--- randomizeMatrix :: (Random a) => Int -> Int -> (a, a) -> IO (Matrix a)
+
+-- TODO: create an instance of random
+randomizeMatrix :: (Random a) => StdGen -> Matrix a -> Matrix a
+randomizeMatrix stdGen matrice =
+    let generateRandomRow :: (Random a) => StdGen -> ([a], StdGen)
+        generateRandomRow gen = random (mkStdGen stdGen) :: ([a], newStdGen)
+    in fmap generateRandomRow matrice
